@@ -1,5 +1,6 @@
 import { pgTable, text, serial, integer, boolean, json, timestamp, varchar, real, foreignKey, smallint } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
+import { relations } from "drizzle-orm";
 import { z } from "zod";
 
 // User schema
@@ -263,6 +264,179 @@ export const timesheet = pgTable("timesheet", {
 export const insertTimesheetSchema = createInsertSchema(timesheet).omit({
   id: true,
 });
+
+// Define table relations
+export const usersRelations = relations(users, ({ many }) => ({
+  documents: many(documents, { relationName: "user_documents" }),
+  tasks: many(tasks, { relationName: "user_tasks" }),
+  timesheets: many(timesheet, { relationName: "user_timesheets" }),
+  itemUsages: many(itemUsage, { relationName: "user_itemUsages" }),
+}));
+
+export const machineryRelations = relations(machinery, ({ many }) => ({
+  services: many(machineryService, { relationName: "machinery_services" }),
+  documents: many(documents, { relationName: "machinery_documents" }),
+}));
+
+export const machineryServiceRelations = relations(machineryService, ({ one }) => ({
+  machinery: one(machinery, {
+    fields: [machineryService.machineryId],
+    references: [machinery.id],
+    relationName: "machinery_services",
+  }),
+}));
+
+export const purchasesRelations = relations(purchases, ({ many }) => ({
+  items: many(purchaseItems, { relationName: "purchase_items" }),
+  documents: many(documents, { relationName: "purchase_documents" }),
+}));
+
+export const purchaseItemsRelations = relations(purchaseItems, ({ one }) => ({
+  purchase: one(purchases, {
+    fields: [purchaseItems.purchaseId],
+    references: [purchases.id],
+    relationName: "purchase_items",
+  }),
+}));
+
+export const inventoryRelations = relations(inventory, ({ one, many }) => ({
+  warehouse: one(warehouses, {
+    fields: [inventory.warehouseId],
+    references: [warehouses.id],
+    relationName: "warehouse_inventory",
+  }),
+  transferItems: many(transferItems, { relationName: "inventory_transfers" }),
+  saleItems: many(saleItems, { relationName: "inventory_sales" }),
+  usages: many(itemUsage, { relationName: "inventory_usages" }),
+}));
+
+export const warehousesRelations = relations(warehouses, ({ many }) => ({
+  inventory: many(inventory, { relationName: "warehouse_inventory" }),
+  salesFrom: many(sales, { relationName: "warehouse_sales" }),
+  transfersFrom: many(inventoryTransfers, { relationName: "warehouse_transfers_from" }),
+  transfersTo: many(inventoryTransfers, { relationName: "warehouse_transfers_to" }),
+}));
+
+export const inventoryTransfersRelations = relations(inventoryTransfers, ({ one, many }) => ({
+  fromWarehouse: one(warehouses, {
+    fields: [inventoryTransfers.fromWarehouseId],
+    references: [warehouses.id],
+    relationName: "warehouse_transfers_from",
+  }),
+  toWarehouse: one(warehouses, {
+    fields: [inventoryTransfers.toWarehouseId],
+    references: [warehouses.id],
+    relationName: "warehouse_transfers_to",
+  }),
+  items: many(transferItems, { relationName: "transfer_items" }),
+}));
+
+export const transferItemsRelations = relations(transferItems, ({ one }) => ({
+  transfer: one(inventoryTransfers, {
+    fields: [transferItems.transferId],
+    references: [inventoryTransfers.id],
+    relationName: "transfer_items",
+  }),
+  inventory: one(inventory, {
+    fields: [transferItems.inventoryId],
+    references: [inventory.id],
+    relationName: "inventory_transfers",
+  }),
+}));
+
+export const salesRelations = relations(sales, ({ one, many }) => ({
+  warehouse: one(warehouses, {
+    fields: [sales.warehouseId],
+    references: [warehouses.id],
+    relationName: "warehouse_sales",
+  }),
+  items: many(saleItems, { relationName: "sale_items" }),
+  documents: many(documents, { relationName: "sale_documents" }),
+}));
+
+export const saleItemsRelations = relations(saleItems, ({ one }) => ({
+  sale: one(sales, {
+    fields: [saleItems.saleId],
+    references: [sales.id],
+    relationName: "sale_items",
+  }),
+  inventory: one(inventory, {
+    fields: [saleItems.inventoryId],
+    references: [inventory.id],
+    relationName: "inventory_sales",
+  }),
+}));
+
+export const documentsRelations = relations(documents, ({ one }) => ({
+  uploader: one(users, {
+    fields: [documents.uploadedBy],
+    references: [users.id],
+    relationName: "user_documents",
+  }),
+}));
+
+export const projectsRelations = relations(projects, ({ many }) => ({
+  tasks: many(tasks, { relationName: "project_tasks" }),
+  documents: many(documents, { relationName: "project_documents" }),
+  itemUsages: many(itemUsage, { relationName: "project_itemUsages" }),
+  timesheets: many(timesheet, { relationName: "project_timesheets" }),
+}));
+
+export const tasksRelations = relations(tasks, ({ one, many }) => ({
+  project: one(projects, {
+    fields: [tasks.projectId],
+    references: [projects.id],
+    relationName: "project_tasks",
+  }),
+  assignee: one(users, {
+    fields: [tasks.assignedTo],
+    references: [users.id],
+    relationName: "user_tasks",
+  }),
+  itemUsages: many(itemUsage, { relationName: "task_itemUsages" }),
+  timesheets: many(timesheet, { relationName: "task_timesheets" }),
+}));
+
+export const itemUsageRelations = relations(itemUsage, ({ one }) => ({
+  inventory: one(inventory, {
+    fields: [itemUsage.inventoryId],
+    references: [inventory.id],
+    relationName: "inventory_usages",
+  }),
+  project: one(projects, {
+    fields: [itemUsage.projectId],
+    references: [projects.id],
+    relationName: "project_itemUsages",
+  }),
+  task: one(tasks, {
+    fields: [itemUsage.taskId],
+    references: [tasks.id],
+    relationName: "task_itemUsages",
+  }),
+  recordedBy: one(users, {
+    fields: [itemUsage.recordedBy],
+    references: [users.id],
+    relationName: "user_itemUsages",
+  }),
+}));
+
+export const timesheetRelations = relations(timesheet, ({ one }) => ({
+  user: one(users, {
+    fields: [timesheet.userId],
+    references: [users.id],
+    relationName: "user_timesheets",
+  }),
+  project: one(projects, {
+    fields: [timesheet.projectId],
+    references: [projects.id],
+    relationName: "project_timesheets",
+  }),
+  task: one(tasks, {
+    fields: [timesheet.taskId],
+    references: [tasks.id],
+    relationName: "task_timesheets",
+  }),
+}));
 
 // Export types
 export type User = typeof users.$inferSelect;

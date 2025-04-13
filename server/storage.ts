@@ -14,12 +14,19 @@ import {
   Project, InsertProject,
   Task, InsertTask,
   ItemUsage, InsertItemUsage,
-  Timesheet, InsertTimesheet
+  Timesheet, InsertTimesheet,
+  users, machinery, machineryService, purchases, purchaseItems,
+  inventory, warehouses, inventoryTransfers, transferItems,
+  sales, saleItems, documents, projects, tasks, itemUsage, timesheet
 } from "@shared/schema";
 import session from "express-session";
 import createMemoryStore from "memorystore";
+import connectPg from "connect-pg-simple";
+import { db, pool } from "./db";
+import { eq, and, desc, asc, sql, count } from "drizzle-orm";
 
 const MemoryStore = createMemoryStore(session);
+const PostgresSessionStore = connectPg(session);
 
 // Interface for storage operations
 export interface IStorage {
@@ -95,7 +102,7 @@ export interface IStorage {
   getDashboardStats(): Promise<any>;
   
   // Session store
-  sessionStore: session.SessionStore;
+  sessionStore: session.Store;
 }
 
 // Memory storage implementation
@@ -134,7 +141,7 @@ export class MemStorage implements IStorage {
   private itemUsageId: number;
   private timesheetId: number;
   
-  sessionStore: session.SessionStore;
+  sessionStore: session.Store;
 
   constructor() {
     this.users = new Map();
@@ -209,7 +216,7 @@ export class MemStorage implements IStorage {
   
   async createMachinery(insertMachinery: InsertMachinery): Promise<Machinery> {
     const id = this.machineryId++;
-    const machinery: Machinery = { ...insertMachinery, id };
+    const machinery = { ...insertMachinery, id } as Machinery;
     this.machinery.set(id, machinery);
     return machinery;
   }
@@ -235,7 +242,7 @@ export class MemStorage implements IStorage {
   
   async createMachineryService(insertService: InsertMachineryService): Promise<MachineryService> {
     const id = this.machineryServiceId++;
-    const service: MachineryService = { ...insertService, id };
+    const service = { ...insertService, id } as MachineryService;
     this.machineryServices.set(id, service);
     return service;
   }
@@ -261,14 +268,14 @@ export class MemStorage implements IStorage {
       insertPurchase.receiptStatus === 'fully' && 
       insertPurchase.paymentStatus === 'fully') ? 'complete' : 'incomplete';
     
-    const purchase: Purchase = { ...insertPurchase, id, purchaseStatus };
+    const purchase = { ...insertPurchase, id, purchaseStatus } as Purchase;
     this.purchases.set(id, purchase);
     
     // Create purchase items
     const purchaseItemsList: PurchaseItem[] = [];
     for (const item of items) {
       const itemId = this.purchaseItemId++;
-      const purchaseItem: PurchaseItem = { ...item, id: itemId, purchaseId: id };
+      const purchaseItem = { ...item, id: itemId, purchaseId: id } as PurchaseItem;
       purchaseItemsList.push(purchaseItem);
     }
     
@@ -323,7 +330,7 @@ export class MemStorage implements IStorage {
   
   async createInventory(insertInventory: InsertInventory): Promise<Inventory> {
     const id = this.inventoryId++;
-    const inventory: Inventory = { ...insertInventory, id };
+    const inventory = { ...insertInventory, id } as Inventory;
     this.inventories.set(id, inventory);
     return inventory;
   }
@@ -352,7 +359,7 @@ export class MemStorage implements IStorage {
   
   async createWarehouse(insertWarehouse: InsertWarehouse): Promise<Warehouse> {
     const id = this.warehouseId++;
-    const warehouse: Warehouse = { ...insertWarehouse, id };
+    const warehouse = { ...insertWarehouse, id } as Warehouse;
     this.warehouses.set(id, warehouse);
     return warehouse;
   }
@@ -360,14 +367,14 @@ export class MemStorage implements IStorage {
   // Inventory Transfer operations
   async createInventoryTransfer(insertTransfer: InsertInventoryTransfer, items: InsertTransferItem[]): Promise<InventoryTransfer> {
     const id = this.transferId++;
-    const transfer: InventoryTransfer = { ...insertTransfer, id };
+    const transfer = { ...insertTransfer, id } as InventoryTransfer;
     this.inventoryTransfers.set(id, transfer);
     
     // Create transfer items
     const transferItemsList: TransferItem[] = [];
     for (const item of items) {
       const itemId = this.transferItemId++;
-      const transferItem: TransferItem = { ...item, id: itemId, transferId: id };
+      const transferItem = { ...item, id: itemId, transferId: id } as TransferItem;
       transferItemsList.push(transferItem);
       
       // Update inventory quantities
@@ -426,14 +433,14 @@ export class MemStorage implements IStorage {
   
   async createSale(insertSale: InsertSale, items: InsertSaleItem[]): Promise<Sale> {
     const id = this.saleId++;
-    const sale: Sale = { ...insertSale, id };
+    const sale = { ...insertSale, id } as Sale;
     this.sales.set(id, sale);
     
     // Create sale items
     const saleItemsList: SaleItem[] = [];
     for (const item of items) {
       const itemId = this.saleItemId++;
-      const saleItem: SaleItem = { ...item, id: itemId, saleId: id };
+      const saleItem = { ...item, id: itemId, saleId: id } as SaleItem;
       saleItemsList.push(saleItem);
       
       // Update inventory quantities
@@ -453,7 +460,7 @@ export class MemStorage implements IStorage {
   // Document operations
   async createDocument(insertDocument: InsertDocument): Promise<Document> {
     const id = this.documentId++;
-    const document: Document = { ...insertDocument, id };
+    const document = { ...insertDocument, id } as Document;
     this.documents.set(id, document);
     return document;
   }
@@ -474,7 +481,7 @@ export class MemStorage implements IStorage {
   
   async createProject(insertProject: InsertProject): Promise<Project> {
     const id = this.projectId++;
-    const project: Project = { ...insertProject, id };
+    const project = { ...insertProject, id } as Project;
     this.projects.set(id, project);
     return project;
   }
@@ -487,7 +494,7 @@ export class MemStorage implements IStorage {
   
   async createTask(insertTask: InsertTask): Promise<Task> {
     const id = this.taskId++;
-    const task: Task = { ...insertTask, id };
+    const task = { ...insertTask, id } as Task;
     this.tasks.set(id, task);
     return task;
   }
@@ -504,7 +511,7 @@ export class MemStorage implements IStorage {
   // Item Usage operations
   async recordItemUsage(insertUsage: InsertItemUsage): Promise<ItemUsage> {
     const id = this.itemUsageId++;
-    const usage: ItemUsage = { ...insertUsage, id };
+    const usage = { ...insertUsage, id } as ItemUsage;
     this.itemUsages.set(id, usage);
     
     // Update inventory quantity
@@ -521,9 +528,9 @@ export class MemStorage implements IStorage {
   // Timesheet operations
   async recordTimesheet(insertTimesheet: InsertTimesheet): Promise<Timesheet> {
     const id = this.timesheetId++;
-    const timesheet: Timesheet = { ...insertTimesheet, id };
-    this.timesheets.set(id, timesheet);
-    return timesheet;
+    const timesheetItem = { ...insertTimesheet, id } as Timesheet;
+    this.timesheets.set(id, timesheetItem);
+    return timesheetItem;
   }
   
   // Dashboard stats
@@ -549,4 +556,527 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+// Database storage implementation
+export class DatabaseStorage implements IStorage {
+  sessionStore: session.Store;
+
+  constructor() {
+    this.sessionStore = new PostgresSessionStore({ 
+      pool, 
+      createTableIfMissing: true 
+    });
+    
+    // Initialize with default warehouses
+    this.initializeDatabase();
+  }
+
+  private async initializeDatabase() {
+    // Check if we have warehouses, if not create default ones
+    const existingWarehouses = await db.select().from(warehouses);
+    
+    if (existingWarehouses.length === 0) {
+      await db.insert(warehouses).values([
+        { name: "Main Warehouse", location: "Main Location" },
+        { name: "Warehouse B", location: "Secondary Location" }
+      ]);
+    }
+  }
+
+  // User operations
+  async getUser(id: number): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user;
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values({
+        ...insertUser,
+        role: "user"
+      })
+      .returning();
+    return user;
+  }
+
+  // Machinery operations
+  async getMachinery(id: number): Promise<Machinery | undefined> {
+    const [item] = await db.select().from(machinery).where(eq(machinery.id, id));
+    return item;
+  }
+  
+  async getMachineryList(): Promise<Machinery[]> {
+    return await db.select().from(machinery);
+  }
+  
+  async createMachinery(insertMachinery: InsertMachinery): Promise<Machinery> {
+    const [item] = await db
+      .insert(machinery)
+      .values(insertMachinery)
+      .returning();
+    return item;
+  }
+  
+  async updateMachinery(id: number, machineryUpdate: Partial<InsertMachinery>): Promise<Machinery | undefined> {
+    const [updatedItem] = await db
+      .update(machinery)
+      .set(machineryUpdate)
+      .where(eq(machinery.id, id))
+      .returning();
+    return updatedItem;
+  }
+  
+  async deleteMachinery(id: number): Promise<boolean> {
+    const result = await db
+      .delete(machinery)
+      .where(eq(machinery.id, id));
+    return result.rowCount ? result.rowCount > 0 : false;
+  }
+  
+  // Machinery Service operations
+  async getMachineryServices(machineryId: number): Promise<MachineryService[]> {
+    return await db
+      .select()
+      .from(machineryService)
+      .where(eq(machineryService.machineryId, machineryId));
+  }
+  
+  async createMachineryService(insertService: InsertMachineryService): Promise<MachineryService> {
+    const [service] = await db
+      .insert(machineryService)
+      .values(insertService)
+      .returning();
+    return service;
+  }
+  
+  // Purchase operations
+  async getPurchase(id: number): Promise<Purchase | undefined> {
+    const [purchase] = await db
+      .select()
+      .from(purchases)
+      .where(eq(purchases.id, id));
+    return purchase;
+  }
+  
+  async getPurchaseList(type?: string): Promise<Purchase[]> {
+    if (type) {
+      return await db
+        .select()
+        .from(purchases)
+        .where(eq(purchases.purchaseType, type));
+    }
+    return await db.select().from(purchases);
+  }
+  
+  async createPurchase(insertPurchase: InsertPurchase, items: InsertPurchaseItem[]): Promise<Purchase> {
+    // Auto-generate purchase status based on tracking statuses
+    const purchaseStatus = (insertPurchase.itemPickupStatus === 'fully' && 
+      insertPurchase.receiptStatus === 'fully' && 
+      insertPurchase.paymentStatus === 'fully') ? 'complete' : 'incomplete';
+    
+    // Create purchase
+    const [purchase] = await db
+      .insert(purchases)
+      .values({
+        ...insertPurchase,
+        purchaseStatus
+      })
+      .returning();
+    
+    // Create purchase items
+    if (items.length > 0) {
+      await db
+        .insert(purchaseItems)
+        .values(items.map(item => ({
+          ...item,
+          purchaseId: purchase.id
+        })));
+    }
+    
+    return purchase;
+  }
+  
+  async updatePurchase(id: number, purchaseUpdate: Partial<InsertPurchase>): Promise<Purchase | undefined> {
+    const [purchase] = await db
+      .select()
+      .from(purchases)
+      .where(eq(purchases.id, id));
+    
+    if (!purchase) return undefined;
+    
+    // Update purchase status based on tracking statuses
+    const updatedStatusFields = {
+      itemPickupStatus: purchaseUpdate.itemPickupStatus || purchase.itemPickupStatus,
+      receiptStatus: purchaseUpdate.receiptStatus || purchase.receiptStatus,
+      paymentStatus: purchaseUpdate.paymentStatus || purchase.paymentStatus,
+    };
+    
+    const purchaseStatus = (updatedStatusFields.itemPickupStatus === 'fully' && 
+      updatedStatusFields.receiptStatus === 'fully' && 
+      updatedStatusFields.paymentStatus === 'fully') ? 'complete' : 'incomplete';
+    
+    const [updatedPurchase] = await db
+      .update(purchases)
+      .set({
+        ...purchaseUpdate,
+        purchaseStatus
+      })
+      .where(eq(purchases.id, id))
+      .returning();
+    
+    return updatedPurchase;
+  }
+  
+  async deletePurchase(id: number): Promise<boolean> {
+    // Delete related purchase items first
+    await db
+      .delete(purchaseItems)
+      .where(eq(purchaseItems.purchaseId, id));
+    
+    // Delete the purchase
+    const result = await db
+      .delete(purchases)
+      .where(eq(purchases.id, id));
+    
+    return result.rowCount ? result.rowCount > 0 : false;
+  }
+  
+  // Purchase Items operations
+  async getPurchaseItems(purchaseId: number): Promise<PurchaseItem[]> {
+    return await db
+      .select()
+      .from(purchaseItems)
+      .where(eq(purchaseItems.purchaseId, purchaseId));
+  }
+  
+  // Inventory operations
+  async getInventory(id: number): Promise<Inventory | undefined> {
+    const [item] = await db
+      .select()
+      .from(inventory)
+      .where(eq(inventory.id, id));
+    return item;
+  }
+  
+  async getInventoryByProductId(productId: string): Promise<Inventory | undefined> {
+    const [item] = await db
+      .select()
+      .from(inventory)
+      .where(eq(inventory.productId, productId));
+    return item;
+  }
+  
+  async getInventoryList(warehouseId?: number): Promise<Inventory[]> {
+    if (warehouseId) {
+      return await db
+        .select()
+        .from(inventory)
+        .where(eq(inventory.warehouseId, warehouseId));
+    }
+    return await db.select().from(inventory);
+  }
+  
+  async createInventory(insertInventory: InsertInventory): Promise<Inventory> {
+    const [item] = await db
+      .insert(inventory)
+      .values(insertInventory)
+      .returning();
+    return item;
+  }
+  
+  async updateInventory(id: number, inventoryUpdate: Partial<InsertInventory>): Promise<Inventory | undefined> {
+    const [updatedItem] = await db
+      .update(inventory)
+      .set(inventoryUpdate)
+      .where(eq(inventory.id, id))
+      .returning();
+    return updatedItem;
+  }
+  
+  async deleteInventory(id: number): Promise<boolean> {
+    const result = await db
+      .delete(inventory)
+      .where(eq(inventory.id, id));
+    return result.rowCount ? result.rowCount > 0 : false;
+  }
+  
+  // Warehouse operations
+  async getWarehouse(id: number): Promise<Warehouse | undefined> {
+    const [warehouse] = await db
+      .select()
+      .from(warehouses)
+      .where(eq(warehouses.id, id));
+    return warehouse;
+  }
+  
+  async getWarehouseList(): Promise<Warehouse[]> {
+    return await db.select().from(warehouses);
+  }
+  
+  async createWarehouse(insertWarehouse: InsertWarehouse): Promise<Warehouse> {
+    const [warehouse] = await db
+      .insert(warehouses)
+      .values(insertWarehouse)
+      .returning();
+    return warehouse;
+  }
+  
+  // Inventory Transfer operations
+  async createInventoryTransfer(insertTransfer: InsertInventoryTransfer, items: InsertTransferItem[]): Promise<InventoryTransfer> {
+    // Create transfer record
+    const [transfer] = await db
+      .insert(inventoryTransfers)
+      .values(insertTransfer)
+      .returning();
+    
+    // Create transfer items and update inventory quantities
+    for (const item of items) {
+      // Add transfer item record
+      await db
+        .insert(transferItems)
+        .values({
+          ...item,
+          transferId: transfer.id
+        });
+      
+      // Get inventory item
+      const [inventoryItem] = await db
+        .select()
+        .from(inventory)
+        .where(eq(inventory.id, item.inventoryId));
+      
+      if (inventoryItem) {
+        // Reduce quantity from source warehouse
+        await db
+          .update(inventory)
+          .set({ quantity: inventoryItem.quantity - item.quantity })
+          .where(eq(inventory.id, item.inventoryId));
+        
+        // Check if item exists in destination warehouse
+        const [sameItemDifferentWarehouse] = await db
+          .select()
+          .from(inventory)
+          .where(and(
+            eq(inventory.itemName, inventoryItem.itemName),
+            eq(inventory.warehouseId, transfer.toWarehouseId)
+          ));
+        
+        if (sameItemDifferentWarehouse) {
+          // Add to existing inventory in destination warehouse
+          await db
+            .update(inventory)
+            .set({ quantity: sameItemDifferentWarehouse.quantity + item.quantity })
+            .where(eq(inventory.id, sameItemDifferentWarehouse.id));
+        } else {
+          // Create new inventory entry in destination warehouse
+          await db
+            .insert(inventory)
+            .values({
+              productId: `${inventoryItem.productId}-${transfer.toWarehouseId}`,
+              category: inventoryItem.category,
+              itemName: inventoryItem.itemName,
+              description: inventoryItem.description,
+              quantity: item.quantity,
+              unit: inventoryItem.unit,
+              unitPrice: inventoryItem.unitPrice,
+              minStock: inventoryItem.minStock,
+              maxStock: inventoryItem.maxStock,
+              warehouseId: transfer.toWarehouseId
+            });
+        }
+      }
+    }
+    
+    return transfer;
+  }
+  
+  async getInventoryTransferList(): Promise<InventoryTransfer[]> {
+    return await db.select().from(inventoryTransfers);
+  }
+  
+  // Sales operations
+  async getSale(id: number): Promise<Sale | undefined> {
+    const [sale] = await db
+      .select()
+      .from(sales)
+      .where(eq(sales.id, id));
+    return sale;
+  }
+  
+  async getSaleList(): Promise<Sale[]> {
+    return await db.select().from(sales);
+  }
+  
+  async createSale(insertSale: InsertSale, items: InsertSaleItem[]): Promise<Sale> {
+    // Create sale record
+    const [sale] = await db
+      .insert(sales)
+      .values(insertSale)
+      .returning();
+    
+    // Create sale items and update inventory quantities
+    for (const item of items) {
+      // Add sale item record
+      await db
+        .insert(saleItems)
+        .values({
+          ...item,
+          saleId: sale.id
+        });
+      
+      // Get inventory item
+      const [inventoryItem] = await db
+        .select()
+        .from(inventory)
+        .where(eq(inventory.id, item.inventoryId));
+      
+      if (inventoryItem) {
+        // Reduce quantity from inventory
+        await db
+          .update(inventory)
+          .set({ quantity: inventoryItem.quantity - item.quantity })
+          .where(eq(inventory.id, item.inventoryId));
+      }
+    }
+    
+    return sale;
+  }
+  
+  // Document operations
+  async createDocument(insertDocument: InsertDocument): Promise<Document> {
+    const [document] = await db
+      .insert(documents)
+      .values(insertDocument)
+      .returning();
+    return document;
+  }
+  
+  async getDocumentsByRelatedId(relatedId: number, relatedType: string): Promise<Document[]> {
+    return await db
+      .select()
+      .from(documents)
+      .where(and(
+        eq(documents.relatedId, relatedId),
+        eq(documents.relatedType, relatedType)
+      ));
+  }
+  
+  // Project operations
+  async getProject(id: number): Promise<Project | undefined> {
+    const [project] = await db
+      .select()
+      .from(projects)
+      .where(eq(projects.id, id));
+    return project;
+  }
+  
+  async getProjectList(): Promise<Project[]> {
+    return await db.select().from(projects);
+  }
+  
+  async createProject(insertProject: InsertProject): Promise<Project> {
+    const [project] = await db
+      .insert(projects)
+      .values(insertProject)
+      .returning();
+    return project;
+  }
+  
+  // Task operations
+  async getTasksByProject(projectId: number): Promise<Task[]> {
+    return await db
+      .select()
+      .from(tasks)
+      .where(eq(tasks.projectId, projectId));
+  }
+  
+  async createTask(insertTask: InsertTask): Promise<Task> {
+    const [task] = await db
+      .insert(tasks)
+      .values(insertTask)
+      .returning();
+    return task;
+  }
+  
+  async updateTaskStatus(id: number, status: string): Promise<Task | undefined> {
+    const [updatedTask] = await db
+      .update(tasks)
+      .set({ status })
+      .where(eq(tasks.id, id))
+      .returning();
+    return updatedTask;
+  }
+  
+  // Item Usage operations
+  async recordItemUsage(insertUsage: InsertItemUsage): Promise<ItemUsage> {
+    // Record usage
+    const [usage] = await db
+      .insert(itemUsage)
+      .values(insertUsage)
+      .returning();
+    
+    // Update inventory quantity
+    const [inventoryItem] = await db
+      .select()
+      .from(inventory)
+      .where(eq(inventory.id, insertUsage.inventoryId));
+    
+    if (inventoryItem) {
+      await db
+        .update(inventory)
+        .set({ quantity: inventoryItem.quantity - insertUsage.quantity })
+        .where(eq(inventory.id, insertUsage.inventoryId));
+    }
+    
+    return usage;
+  }
+  
+  // Timesheet operations
+  async recordTimesheet(insertTimesheet: InsertTimesheet): Promise<Timesheet> {
+    const [timesheetRecord] = await db
+      .insert(timesheet)
+      .values(insertTimesheet)
+      .returning();
+    return timesheetRecord;
+  }
+  
+  // Statistics for dashboard
+  async getDashboardStats(): Promise<any> {
+    const machineryCount = await db
+      .select({ count: sql`count(*)` })
+      .from(machinery);
+    
+    const pendingPurchases = await db
+      .select()
+      .from(purchases)
+      .where(eq(purchases.purchaseStatus, "incomplete"));
+    
+    const lowStockItems = await db
+      .select()
+      .from(inventory)
+      .where(
+        sql`${inventory.quantity} <= ${inventory.minStock} AND ${inventory.minStock} IS NOT NULL`
+      );
+    
+    const recentSales = await db
+      .select()
+      .from(sales)
+      .orderBy(desc(sales.saleDate))
+      .limit(5);
+    
+    return {
+      totalMachinery: machineryCount.length > 0 ? Number(machineryCount[0].count) : 0,
+      pendingPurchases: pendingPurchases.length,
+      lowStockItems: lowStockItems.length,
+      recentSales
+    };
+  }
+}
+
+// Use database storage
+export const storage = new DatabaseStorage();
