@@ -80,8 +80,8 @@ export default function SidebarLayout({ children }: SidebarLayoutProps) {
           <nav className="flex-1 overflow-y-auto p-2 space-y-1">
             {sidebarItems.map((item) => (
               <Link key={item.path} href={item.path}>
-                <a 
-                  className={`flex items-center px-3 py-2 rounded-md w-full text-left ${
+                <div 
+                  className={`flex items-center px-3 py-2 rounded-md w-full text-left cursor-pointer ${
                     currentPath === item.path 
                       ? 'bg-slate-100 text-primary' 
                       : 'text-slate-600 hover:bg-slate-50'
@@ -89,7 +89,7 @@ export default function SidebarLayout({ children }: SidebarLayoutProps) {
                 >
                   {item.icon}
                   <span>{item.name}</span>
-                </a>
+                </div>
               </Link>
             ))}
           </nav>
