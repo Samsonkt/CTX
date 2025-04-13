@@ -9,7 +9,8 @@
       "src": "package.json",
       "use": "@vercel/static-build",
       "config": {
-        "buildCommand": "npm run build"
+        "buildCommand": "npm run build",
+        "outputDirectory": "dist/public"
       }
     }
   ],
@@ -19,8 +20,15 @@
       "dest": "/api/_app.ts"
     },
     {
+      "src": "/(.*\\.(js|css|ico|png|jpg|svg|json))",
+      "dest": "/dist/public/$1"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
       "src": "/(.*)",
-      "dest": "/dist/$1"
+      "dest": "/dist/public/index.html"
     }
   ]
 }
