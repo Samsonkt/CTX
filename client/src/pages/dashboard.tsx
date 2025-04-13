@@ -39,8 +39,16 @@ type DashboardStats = {
 };
 
 export default function Dashboard() {
-  const { data: stats, isLoading } = useQuery<DashboardStats>({
+  const { data: stats, isLoading, isError } = useQuery<DashboardStats>({
     queryKey: ["/api/dashboard"],
+    placeholderData: {
+      totalMachinery: 0,
+      pendingPurchases: 0,
+      lowStockItems: 0,
+      pendingDeliveries: 0,
+      recentActivities: [],
+      tasks: []
+    }
   });
 
   const getActivityIcon = (type: string) => {
@@ -213,7 +221,7 @@ export default function Dashboard() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {stats?.recentActivities.map((activity, index) => (
+                  {stats?.recentActivities?.map((activity, index) => (
                     <div key={index} className="flex items-start">
                       <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
                         {getActivityIcon(activity.type)}
@@ -223,7 +231,9 @@ export default function Dashboard() {
                         <p className="text-xs text-slate-500">{formatDate(activity.timestamp)}</p>
                       </div>
                     </div>
-                  ))}
+                  )) || (
+                    <p className="text-sm text-slate-500">No recent activities</p>
+                  )}
                 </div>
               )}
               
@@ -253,7 +263,7 @@ export default function Dashboard() {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {stats?.tasks.map((task) => (
+                  {stats?.tasks?.map((task) => (
                     <div key={task.id} className="flex items-start p-2 hover:bg-slate-50 rounded-md">
                       <Checkbox id={`task-${task.id}`} className="mt-1" />
                       <div className="ml-3 flex-1">
@@ -262,7 +272,9 @@ export default function Dashboard() {
                       </div>
                       {getPriorityBadge(task.priority)}
                     </div>
-                  ))}
+                  )) || (
+                    <p className="text-sm text-slate-500">No tasks to do</p>
+                  )}
                 </div>
               )}
               
