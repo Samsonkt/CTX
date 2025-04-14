@@ -96,7 +96,7 @@ export default function Dashboard() {
             <p className="text-slate-600">Your internal business management tool. Use the navigation menu to access different modules.</p>
           </CardContent>
         </Card>
-        
+
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Total Machinery */}
@@ -123,7 +123,7 @@ export default function Dashboard() {
               )}
             </CardContent>
           </Card>
-          
+
           {/* Pending Purchases */}
           <Card>
             <CardContent className="p-5">
@@ -148,7 +148,7 @@ export default function Dashboard() {
               )}
             </CardContent>
           </Card>
-          
+
           {/* Low Stock Items */}
           <Card>
             <CardContent className="p-5">
@@ -173,7 +173,7 @@ export default function Dashboard() {
               )}
             </CardContent>
           </Card>
-          
+
           {/* Pending Deliveries */}
           <Card>
             <CardContent className="p-5">
@@ -199,14 +199,14 @@ export default function Dashboard() {
             </CardContent>
           </Card>
         </div>
-        
+
         {/* Recent Activities & Tasks */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Recent Activities */}
           <Card>
             <CardContent className="pt-6">
               <h3 className="text-lg font-semibold text-slate-800 mb-4">Recent Activities</h3>
-              
+
               {isLoading ? (
                 <div className="space-y-4">
                   {[1, 2, 3, 4].map((i) => (
@@ -236,18 +236,18 @@ export default function Dashboard() {
                   )}
                 </div>
               )}
-              
+
               <div className="mt-4 text-center">
                 <button className="text-sm text-primary hover:text-primary/80 font-medium">View All Activities</button>
               </div>
             </CardContent>
           </Card>
-          
+
           {/* Tasks To Do */}
           <Card>
             <CardContent className="pt-6">
               <h3 className="text-lg font-semibold text-slate-800 mb-4">Tasks To Do</h3>
-              
+
               {isLoading ? (
                 <div className="space-y-3">
                   {[1, 2, 3, 4].map((i) => (
@@ -277,7 +277,7 @@ export default function Dashboard() {
                   )}
                 </div>
               )}
-              
+
               <div className="mt-4 text-center">
                 <button className="text-sm text-primary hover:text-primary/80 font-medium">View All Tasks</button>
               </div>
