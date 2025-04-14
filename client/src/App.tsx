@@ -14,7 +14,7 @@ import DocumentsPage from "@/pages/documents-page";
 import OperationsPage from "@/pages/operations-page";
 import ReportsPage from "@/pages/reports-page";
 import { ProtectedRoute } from "@/lib/protected-route";
-import AuthProvider from "@/components/AuthProvider"; // You need to create this component
+import { AuthProvider } from "@/hooks/use-auth";
 
 
 function Router() {
