@@ -81,7 +81,7 @@ if (process.env.VERCEL !== 'true') {
 
 // Export for Vercel
 // Vercel serverless handler
-let cachedApp: Express | null = null;
+let cachedApp: express.Application | null = null;
 
 export default async function handler(req: Request, res: Response) {
   if (!cachedApp) {
