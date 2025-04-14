@@ -80,16 +80,19 @@ if (process.env.VERCEL !== 'true') {
 }
 
 // Export for Vercel
+// Vercel serverless handler
+let cachedApp: Express | null = null;
+
 export default async function handler(req: Request, res: Response) {
-  const app = express();
-  setupApp(app);
+  if (!cachedApp) {
+    const app = express();
+    setupApp(app);
+    await registerRoutes(app);
+    if (process.env.NODE_ENV === 'production') {
+      serveStatic(app);
+    }
+    cachedApp = app;
+  }
   
-  // Set up routes
-  const server = await registerRoutes(app);
-  
-  // Handle static files for production
-  serveStatic(app);
-  
-  // Forward the request to our Express app
-  return app(req, res);
+  return cachedApp(req, res);
 }
