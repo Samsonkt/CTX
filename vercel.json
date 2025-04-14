@@ -2,30 +2,18 @@
   "version": 2,
   "builds": [
     {
-      "src": "api/_app.ts",
+      "src": "server/index.ts",
       "use": "@vercel/node"
-    },
-    {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "buildCommand": "npm run build",
-        "outputDirectory": "dist"
-      }
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/api/_app.ts"
-    },
-    {
-      "src": "/(.*\\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$)",
-      "dest": "/dist/$1"
+      "dest": "server/index.ts"
     },
     {
       "src": "/(.*)",
-      "dest": "/dist/index.html"
+      "dest": "server/index.ts"
     }
   ],
   "env": {
