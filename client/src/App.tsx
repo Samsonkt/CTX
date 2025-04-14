@@ -1,6 +1,7 @@
+
 import { Switch, Route } from "wouter";
-import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
-import { queryClient as initialQueryClient } from "./lib/queryClient"; // Assuming this is the original client
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
 import NotFound from "@/pages/not-found";
 import AuthPage from "@/pages/auth-page";
@@ -15,7 +16,6 @@ import OperationsPage from "@/pages/operations-page";
 import ReportsPage from "@/pages/reports-page";
 import { ProtectedRoute } from "@/lib/protected-route";
 import { AuthProvider } from "@/hooks/use-auth";
-
 
 function Router() {
   return (
@@ -36,11 +36,9 @@ function Router() {
 }
 
 function App() {
-  const queryClient = new QueryClient();
-
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider> {/* AuthProvider needs to be added */}
+      <AuthProvider>
         <Router />
         <Toaster />
       </AuthProvider>
