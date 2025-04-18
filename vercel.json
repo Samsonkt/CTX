@@ -1,13 +1,18 @@
 {
   "version": 2,
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "installCommand": "npm install --platform=linux --arch=x64",
+  "builds": [
+    {
+      "src": "dist/index.js",
+      "use": "@vercel/node"
+    }
+  ],
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "api/index.ts"
-    },
-    {
       "src": "/(.*)",
-      "dest": "/client/index.html"
+      "dest": "dist/index.js"
     }
   ],
   "env": {
