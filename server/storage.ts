@@ -18,11 +18,11 @@ import {
   users, machinery, machineryService, purchases, purchaseItems,
   inventory, warehouses, inventoryTransfers, transferItems,
   sales, saleItems, documents, projects, tasks, itemUsage, timesheet
-} from "@shared/schema";
+} from "../shared/schema.js";
 import session from "express-session";
 import createMemoryStore from "memorystore";
 import connectPg from "connect-pg-simple";
-import { db, pool } from "./db";
+import { db, pool } from "./db.js";
 import { eq, and, desc, asc, sql, count } from "drizzle-orm";
 
 const MemoryStore = createMemoryStore(session);
