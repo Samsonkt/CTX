@@ -1,13 +1,10 @@
-<<<<<<< HEAD
 import 'dotenv/config';
-=======
->>>>>>> 2f0d1f0ecab4bf72f122ee9bc0ff7a0e0756936b
 import express, { type Request, Response, NextFunction } from "express";
-import { registerRoutes } from "./routes";
-import { setupVite, serveStatic, log } from "./vite";
+import { registerRoutes } from "./routes.js";
+import { setupVite, serveStatic, log } from "./vite.js";
 
 // Setup app function - exported for Vercel serverless environment
-export function setupApp(app: express.Application) {
+export async function setupApp(app: express.Application) {
   app.use(express.json());
   app.use(express.urlencoded({ extended: false }));
 
@@ -48,7 +45,7 @@ export function setupApp(app: express.Application) {
 if (process.env.VERCEL !== 'true') {
   (async () => {
     const app = express();
-    setupApp(app);
+    await setupApp(app);
     
     const server = await registerRoutes(app);
 
@@ -60,23 +57,16 @@ if (process.env.VERCEL !== 'true') {
       throw err;
     });
 
-    // importantly only setup vite in development and after
-    // setting up all the other routes so the catch-all route
-    // doesn't interfere with the other routes
-    if (app.get("env") === "development") {
+    if (process.env.NODE_ENV === "development") {
       await setupVite(app, server);
     } else {
       serveStatic(app);
     }
 
-    // ALWAYS serve the app on port 5000
-    // this serves both the API and the client.
-    // It is the only port that is not firewalled.
-    const port = 5000;
+    const port = process.env.PORT || 5000;
     server.listen({
       port,
       host: "0.0.0.0",
-      reusePort: true,
     }, () => {
       log(`serving on port ${port}`);
     });
@@ -84,13 +74,12 @@ if (process.env.VERCEL !== 'true') {
 }
 
 // Export for Vercel
-// Vercel serverless handler
 let cachedApp: express.Application | null = null;
 
 export default async function handler(req: Request, res: Response) {
   if (!cachedApp) {
     const app = express();
-    setupApp(app);
+    await setupApp(app);
     await registerRoutes(app);
     if (process.env.NODE_ENV === 'production') {
       serveStatic(app);
