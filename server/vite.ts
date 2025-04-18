@@ -23,7 +23,11 @@ export async function setupVite(app: Express, server: Server) {
   const serverOptions = {
     middlewareMode: true,
     hmr: { server },
+<<<<<<< HEAD
     allowedHosts: true,
+=======
+    allowedHosts: true as true | string[] | undefined, // Corrected type for allowedHosts
+>>>>>>> 2f0d1f0ecab4bf72f122ee9bc0ff7a0e0756936b
   };
 
   const vite = await createViteServer({
@@ -52,7 +56,11 @@ export async function setupVite(app: Express, server: Server) {
         "index.html",
       );
 
+<<<<<<< HEAD
       // always reload the index.html file from disk incase it changes
+=======
+      // always reload the index.html file from disk in case it changes
+>>>>>>> 2f0d1f0ecab4bf72f122ee9bc0ff7a0e0756936b
       let template = await fs.promises.readFile(clientTemplate, "utf-8");
       template = template.replace(
         `src="/src/main.tsx"`,
@@ -82,4 +90,8 @@ export function serveStatic(app: Express) {
   app.use("*", (_req, res) => {
     res.sendFile(path.resolve(distPath, "index.html"));
   });
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 2f0d1f0ecab4bf72f122ee9bc0ff7a0e0756936b

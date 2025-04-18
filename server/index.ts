@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 import 'dotenv/config';
+=======
+>>>>>>> 2f0d1f0ecab4bf72f122ee9bc0ff7a0e0756936b
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
