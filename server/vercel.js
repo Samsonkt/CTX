@@ -10,7 +10,7 @@ const app = express();
 await setupApp(app);
 
 // Register API routes
-registerRoutes(app);
+await registerRoutes(app);
 
-// In serverless environments, we export the app
+// Export the app for Vercel serverless deployment
 export default app;
