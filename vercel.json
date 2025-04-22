@@ -1,32 +1,30 @@
+// vercel.json
 {
   "version": 2,
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist",
-  "installCommand": "npm install --platform=linux --arch=x64",
-  "functions": {
-    "api/**/*": {
-      "runtime": "@vercel/node@3"
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
     },
-    "server/vercel.js": {
-      "runtime": "@vercel/node@3"
+    {
+      "src": "api/index.ts",
+      "use": "@vercel/node"
     }
-  },
+  ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "server/vercel.js"
+      "dest": "/api/index.ts"
+    },
+    {
+      "handle": "filesystem"
     },
     {
       "src": "/(.*)",
-      "dest": "dist/$1",
-      "continue": true
-    },
-    {
-      "src": "/(.*)",
-      "dest": "server/vercel.js"
+      "dest": "/index.html"
     }
-  ],
-  "env": {
-    "NODE_ENV": "production"
-  }
+  ]
 }
