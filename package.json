@@ -3,12 +3,15 @@
   "version": "1.0.0",
   "type": "module",
   "license": "MIT",
+
   "scripts": {
     "dev": "NODE_ENV=development tsx server/index.ts",
-    "start": "NODE_ENV=production node dist/index.js",
+    "build": "vite build", // <-- Optional: Added build script for Vite
+    "start": "NODE_ENV=production tsx server/index.ts", // Start the server in production mode
     "check": "tsc",
     "db:push": "drizzle-kit push"
   },
+
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
     "@jridgewell/trace-mapping": "^0.3.25",
