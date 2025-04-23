@@ -2,6 +2,7 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import cors from "cors";
+import path from "path";
 
 // Setup app function - exported for Vercel serverless environment
 export function setupApp(app: express.Application) {
@@ -37,6 +38,15 @@ export function setupApp(app: express.Application) {
   app.use(express.json());
   app.use(express.urlencoded({ extended: false }));
 
+  // Error handling middleware
+  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+    const status = err.status || err.statusCode || 500;
+    const message = err.message || "Internal Server Error";
+    res.status(status).json({ message });
+    throw err;
+  });
+
+  // Request logging middleware
   app.use((req, res, next) => {
     const start = Date.now();
     const path = req.path;
@@ -78,14 +88,6 @@ if (process.env.VERCEL !== 'true') {
     
     const server = await registerRoutes(app);
 
-    app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-      const status = err.status || err.statusCode || 500;
-      const message = err.message || "Internal Server Error";
-
-      res.status(status).json({ message });
-      throw err;
-    });
-
     // importantly only setup vite in development and after
     // setting up all the other routes so the catch-all route
     // doesn't interfere with the other routes
@@ -118,9 +120,15 @@ export default async function handler(req: Request, res: Response) {
     const app = express();
     setupApp(app);
     await registerRoutes(app);
+    
+    // In production, serve static files
     if (process.env.NODE_ENV === 'production') {
-      serveStatic(app);
+      app.use(express.static(path.join(__dirname, '../client/dist')));
+      app.use('*', (req, res) => {
+        res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+      });
     }
+    
     cachedApp = app;
   }
   
