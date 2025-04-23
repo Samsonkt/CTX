@@ -24,6 +24,8 @@ import createMemoryStore from "memorystore";
 import connectPg from "connect-pg-simple";
 import { db, pool } from "./db";
 import { eq, and, desc, asc, sql, count } from "drizzle-orm";
+import { Pool as PgPool } from 'pg';
+import { Pool as NeonPool } from '@neondatabase/serverless';
 
 const MemoryStore = createMemoryStore(session);
 const PostgresSessionStore = connectPg(session);
@@ -574,7 +576,7 @@ export class DatabaseStorage implements IStorage {
       } else {
         console.log('Using PostgreSQL session store');
         this.sessionStore = new PostgresSessionStore({ 
-          pool, 
+          pool: pool as PgPool, 
           createTableIfMissing: true 
         });
       }
