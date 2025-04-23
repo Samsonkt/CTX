@@ -1,9 +1,39 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import cors from "cors";
 
 // Setup app function - exported for Vercel serverless environment
 export function setupApp(app: express.Application) {
+  // CORS configuration
+  const allowedOrigins = [
+    // Vercel deployment
+    "https://ctx-zeta.vercel.app",
+    "https://ctx-software.vercel.app",
+    // Local development
+    "http://localhost:3000",
+    "http://localhost:5000",
+    // Add any other domains as needed
+  ];
+
+  const corsOptions = {
+    origin: function (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
+      // Allow requests with no origin (like mobile apps, curl, Postman)
+      if (!origin) return callback(null, true);
+      
+      if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV !== "production") {
+        callback(null, true);
+      } else {
+        console.warn(`Origin ${origin} not allowed by CORS`);
+        callback(null, true); // Allow anyway for now, but log it
+      }
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"]
+  };
+
+  app.use(cors(corsOptions));
   app.use(express.json());
   app.use(express.urlencoded({ extended: false }));
 

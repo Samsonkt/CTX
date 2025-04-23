@@ -29,8 +29,20 @@ async function comparePasswords(supplied: string, stored: string) {
 }
 
 export function setupAuth(app: Express) {
+  // Ensure we have a session secret
+  if (!process.env.SESSION_SECRET && process.env.NODE_ENV === 'production') {
+    console.warn('Warning: SESSION_SECRET environment variable not set in production!');
+    console.warn('Using fallback secret - this is NOT secure for production.');
+  }
+  
+  // Generate random secret if not provided (for development only)
+  const sessionSecret = process.env.SESSION_SECRET || 
+    (process.env.NODE_ENV === 'production' 
+      ? 'ctx-software-secure-key-' + Date.now().toString() 
+      : 'dev-secret-key');
+  
   const sessionSettings: session.SessionOptions = {
-    secret: process.env.SESSION_SECRET || "ctx-software-secret-key",
+    secret: sessionSecret,
     resave: false,
     saveUninitialized: false,
     store: storage.sessionStore,

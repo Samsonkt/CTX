@@ -28,11 +28,14 @@ if (process.env.NODE_ENV === 'production' || process.env.VERCEL === '1') {
     );
   }
   
-  // Create optimized serverless connection pool
+  // Create optimized serverless connection pool with settings for Vercel
   connectionPool = new NeonPool({ 
     connectionString: process.env.DATABASE_URL,
     max: 1,
-    idleTimeoutMillis: 10000
+    idleTimeoutMillis: 10000,
+    connectionTimeoutMillis: 5000, // 5 seconds
+    maxUses: 100, // Close connection after 100 queries
+    allowExitOnIdle: true
   });
   
   // Create drizzle instance with Neon driver
