@@ -580,12 +580,13 @@ export class DatabaseStorage implements IStorage {
       }
       
       // Initialize database asynchronously
-      this.initializeDatabase().catch(err => {
+      this.initializeDatabase().catch((err: Error) => {
         console.warn('Failed to initialize database:', err.message);
       });
       
-    } catch (err) {
-      console.warn('Error during storage initialization, falling back to memory session store:', err);
+    } catch (err: unknown) {
+      const error = err as Error;
+      console.warn('Error during storage initialization, falling back to memory session store:', error.message);
       this.sessionStore = new MemoryStore({
         checkPeriod: 86400000 // 24 hours
       });
@@ -606,9 +607,10 @@ export class DatabaseStorage implements IStorage {
       
       this.dbInitialized = true;
       console.log('Database initialized successfully');
-    } catch (err) {
-      console.warn('Database initialization failed:', err.message);
-      throw err; // Rethrow so the constructor catch block can handle it
+    } catch (err: unknown) {
+      const error = err as Error;
+      console.warn('Database initialization failed:', error.message);
+      throw error; // Rethrow so the constructor catch block can handle it
     }
   }
 
