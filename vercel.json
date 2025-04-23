@@ -1,29 +1,19 @@
 {
   "version": 2,
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist",
-  "installCommand": "npm install --platform=linux --arch=x64",
-  "functions": {
-    "api/**/*": {
-      "runtime": "@vercel/node@3"
-    },
-    "server/vercel.js": {
-      "runtime": "@vercel/node@3"
+  "builds": [
+    {
+      "src": "server/index.ts",
+      "use": "@vercel/node"
     }
-  },
+  ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "server/vercel.js"
+      "dest": "server/index.ts"
     },
     {
       "src": "/(.*)",
-      "dest": "dist/$1",
-      "continue": true
-    },
-    {
-      "src": "/(.*)",
-      "dest": "server/vercel.js"
+      "dest": "server/index.ts"
     }
   ],
   "env": {
