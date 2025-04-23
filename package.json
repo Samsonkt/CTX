@@ -6,8 +6,8 @@
 
   "scripts": {
     "dev": "NODE_ENV=development tsx server/index.ts",
-    "build": "vite build", // <-- Optional: Added build script for Vite
-    "start": "NODE_ENV=production tsx server/index.ts", // Start the server in production mode
+    "build": "vite build",
+    "start": "NODE_ENV=production tsx server/index.ts",
     "check": "tsc",
     "db:push": "drizzle-kit push"
   },
