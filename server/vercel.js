@@ -1,16 +1,25 @@
-// This file is used by Vercel to run the Express app in a serverless environment
-const express = require('express');
-const { setupApp } = require('./index');
-const { registerRoutes } = require('./routes');
-
-// Create Express app instance
-const app = express();
-
-// Set up middleware
-setupApp(app);
-
-// Register API routes
-registerRoutes(app);
-
-// In serverless environments, we export the app directly
-module.exports = app;
+{
+  "version": 2,
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/index"
+    },
+    {
+      "source": "/((?!api/|assets/).*)",
+      "destination": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Credentials", "value": "true" },
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET,OPTIONS,PATCH,DELETE,POST,PUT" },
+        { "key": "Access-Control-Allow-Headers", "value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization" }
+      ]
+    }
+  ],
+  "regions": ["iad1"]
+}
