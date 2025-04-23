@@ -18,11 +18,11 @@ import {
   users, machinery, machineryService, purchases, purchaseItems,
   inventory, warehouses, inventoryTransfers, transferItems,
   sales, saleItems, documents, projects, tasks, itemUsage, timesheet
-} from "../shared/schema.js";
+} from "@shared/schema";
 import session from "express-session";
 import createMemoryStore from "memorystore";
 import connectPg from "connect-pg-simple";
-import { db, pool } from "./db.js";
+import { db, pool } from "./db";
 import { eq, and, desc, asc, sql, count } from "drizzle-orm";
 
 const MemoryStore = createMemoryStore(session);
@@ -559,26 +559,56 @@ export class MemStorage implements IStorage {
 // Database storage implementation
 export class DatabaseStorage implements IStorage {
   sessionStore: session.Store;
+  private dbInitialized = false;
 
   constructor() {
-    this.sessionStore = new PostgresSessionStore({ 
-      pool, 
-      createTableIfMissing: true 
-    });
-    
-    // Initialize with default warehouses
-    this.initializeDatabase();
+    try {
+      // Detect Replit environment
+      const isReplitEnv = process.env.REPL_ID !== undefined;
+      
+      if (isReplitEnv) {
+        console.log('Running in Replit environment - using memory session store');
+        this.sessionStore = new MemoryStore({
+          checkPeriod: 86400000 // 24 hours
+        });
+      } else {
+        console.log('Using PostgreSQL session store');
+        this.sessionStore = new PostgresSessionStore({ 
+          pool, 
+          createTableIfMissing: true 
+        });
+      }
+      
+      // Initialize database asynchronously
+      this.initializeDatabase().catch(err => {
+        console.warn('Failed to initialize database:', err.message);
+      });
+      
+    } catch (err) {
+      console.warn('Error during storage initialization, falling back to memory session store:', err);
+      this.sessionStore = new MemoryStore({
+        checkPeriod: 86400000 // 24 hours
+      });
+    }
   }
 
   private async initializeDatabase() {
-    // Check if we have warehouses, if not create default ones
-    const existingWarehouses = await db.select().from(warehouses);
-    
-    if (existingWarehouses.length === 0) {
-      await db.insert(warehouses).values([
-        { name: "Main Warehouse", location: "Main Location" },
-        { name: "Warehouse B", location: "Secondary Location" }
-      ]);
+    try {
+      // Check if we have warehouses, if not create default ones
+      const existingWarehouses = await db.select().from(warehouses);
+      
+      if (existingWarehouses.length === 0) {
+        await db.insert(warehouses).values([
+          { name: "Main Warehouse", location: "Main Location" },
+          { name: "Warehouse B", location: "Secondary Location" }
+        ]);
+      }
+      
+      this.dbInitialized = true;
+      console.log('Database initialized successfully');
+    } catch (err) {
+      console.warn('Database initialization failed:', err.message);
+      throw err; // Rethrow so the constructor catch block can handle it
     }
   }
 
@@ -1079,4 +1109,11 @@ export class DatabaseStorage implements IStorage {
 }
 
 // Use database storage
-export const storage = new DatabaseStorage();
+// Determine which storage to use based on environment
+const isReplitEnv = process.env.REPL_ID !== undefined;
+
+// For demonstration purposes in Replit, use MemStorage if we detect we're in Replit
+// In real-world production, always use DatabaseStorage with proper error handling
+export const storage = isReplitEnv 
+  ? new MemStorage() 
+  : new DatabaseStorage();

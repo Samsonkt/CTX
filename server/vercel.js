@@ -1,16 +1,16 @@
 // This file is used by Vercel to run the Express app in a serverless environment
-import express from 'express';
-import { setupApp } from './index.js';
-import { registerRoutes } from './routes.js';
+const express = require('express');
+const { setupApp } = require('./index');
+const { registerRoutes } = require('./routes');
 
 // Create Express app instance
 const app = express();
 
 // Set up middleware
-await setupApp(app);
+setupApp(app);
 
 // Register API routes
-await registerRoutes(app);
+registerRoutes(app);
 
-// Export the app for Vercel serverless deployment
-export default app;
+// In serverless environments, we export the app directly
+module.exports = app;
