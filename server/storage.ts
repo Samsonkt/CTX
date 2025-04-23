@@ -1109,4 +1109,11 @@ export class DatabaseStorage implements IStorage {
 }
 
 // Use database storage
-export const storage = new DatabaseStorage();
+// Determine which storage to use based on environment
+const isReplitEnv = process.env.REPL_ID !== undefined;
+
+// For demonstration purposes in Replit, use MemStorage if we detect we're in Replit
+// In real-world production, always use DatabaseStorage with proper error handling
+export const storage = isReplitEnv 
+  ? new MemStorage() 
+  : new DatabaseStorage();

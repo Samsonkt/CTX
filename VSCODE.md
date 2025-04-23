@@ -1,147 +1,268 @@
-# Running CTX SOFTWARE SYSTEM in VS Code
+# CTX SOFTWARE SYSTEM - VS Code Development Guide
 
-This guide provides instructions for setting up and running the CTX SOFTWARE SYSTEM in Visual Studio Code.
+This guide provides comprehensive instructions on how to set up and run the CTX SOFTWARE SYSTEM in VS Code for local development.
 
-## Prerequisites
+## System Requirements
 
-1. [Visual Studio Code](https://code.visualstudio.com/) installed
-2. [Node.js](https://nodejs.org/) (v16 or higher) installed
-3. [npm](https://www.npmjs.com/) or [yarn](https://yarnpkg.com/) installed
-4. [Git](https://git-scm.com/) installed
-5. PostgreSQL database (local or cloud-based)
+- Node.js v16 or higher
+- npm v7 or higher
+- PostgreSQL v12 or higher (local installation required)
+- VS Code with recommended extensions
 
-## Recommended VS Code Extensions
+## Getting Started
 
-For the best development experience, install these VS Code extensions:
+### 1. Installation Steps
 
-1. **ESLint** - For JavaScript linting
-2. **Prettier** - For code formatting
-3. **TypeScript Extension Pack** - Enhanced TypeScript support
-4. **Tailwind CSS IntelliSense** - For Tailwind CSS auto-completion
-5. **DotENV** - For .env file syntax highlighting
-6. **vscode-icons** - For better file icons
+#### Install VS Code Extensions
 
-## Setup Steps
+The following extensions will enhance your development experience:
 
-1. Clone the repository (if you haven't already):
+- **ESLint**: JavaScript linting
+- **Prettier**: Code formatting
+- **TypeScript**: Language support
+- **Tailwind CSS IntelliSense**: CSS class suggestions
+- **SQLTools**: Database management (optional)
+- **DotENV**: Environment file support
+- **Live Share**: Collaborative editing (optional)
+
+Install these by searching in the Extensions panel (Ctrl+Shift+X or Cmd+Shift+X on Mac).
+
+#### Clone and Install Dependencies
+
+```bash
+# Clone the repository (if you haven't already)
+git clone https://your-repository-url/ctx-software.git
+cd ctx-software
+
+# Install dependencies
+npm install
+```
+
+### 2. Database Setup
+
+The application requires a PostgreSQL database. Choose one of these setup methods:
+
+#### Option A: Automated Setup (Recommended)
+
+We've included a database initialization script that handles everything for you:
+
+```bash
+node scripts/init-local-db.js
+```
+
+This script will:
+- Check if PostgreSQL is accessible
+- Create the 'ctx_software' database (if it doesn't exist)
+- Run necessary migrations to set up tables
+- Display connection details for your .env file
+
+#### Option B: Manual Setup
+
+If you prefer manual control:
+
+1. Create a PostgreSQL database:
+   ```sql
+   CREATE DATABASE ctx_software;
+   ```
+
+2. Run migrations with our Drizzle ORM tool:
    ```bash
-   git clone <repository-url>
-   cd ctx-software-system
+   npm run db:push
    ```
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+#### Option C: Testing Connection Only
 
-3. Setup the local PostgreSQL database:
-   
-   **Option A: Using the setup script (recommended)**
-   
-   We've included a database initialization script that will create the local database and run migrations:
-   
-   ```bash
-   node scripts/init-local-db.js
-   ```
-   
-   This script will:
-   - Create a PostgreSQL database named 'ctx_software'
-   - Run the database migrations
-   - Display the connection string to use in your .env file
-   
-   **Option B: Manual setup**
-   
-   If you prefer to set up manually:
-   - Create a PostgreSQL database (e.g., 'ctx_software')
-   - Run the migrations with `npm run db:push`
+If you're unsure about your PostgreSQL setup:
 
-4. Create a `.env` file in the project root with the following content:
-   ```
-   DATABASE_URL=postgresql://postgres:postgres@localhost:5432/ctx_software
-   NODE_ENV=development
-   SESSION_SECRET=your-session-secret
-   PORT=5000
-   ```
-   
-   Replace the `DATABASE_URL` if your connection details are different from the defaults.
+1. Use the VS Code debugger to run "Test Database Connection"
+2. Review the console output for connection status
 
-5. Open the project in VS Code:
-   ```bash
-   code .
-   ```
+### 3. Environment Configuration
 
-## Running the Application
+Create a `.env` file in the project root with the following settings:
 
-### Option 1: Using VS Code Debugger
+```ini
+# Database connection
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/ctx_software
 
-1. Open the VS Code debugger tab (Ctrl+Shift+D or Cmd+Shift+D on Mac)
+# Environment
+NODE_ENV=development 
+
+# Security
+SESSION_SECRET=your-long-random-secret-key-change-this
+
+# Server options
+PORT=5000
+DEBUG=true
+```
+
+Adjust these values based on your local setup.
+
+### 4. Launch the Application
+
+#### Method 1: VS Code Debugger (Recommended)
+
+1. Open the VS Code debugger (Ctrl+Shift+D or Cmd+Shift+D on Mac)
 2. Select "Launch Server" from the dropdown
-3. Click the green play button
+3. Click the green play button (or press F5)
 
-### Option 2: Using Terminal
+This method provides full debugging capabilities with breakpoints.
 
-1. Open the terminal in VS Code (Ctrl+` or View > Terminal)
-2. Run the development server:
-   ```bash
-   npm run dev
-   ```
+#### Method 2: Terminal
 
-The application will start and be available at http://localhost:5000
+```bash
+npm run dev
+```
 
-## Debugging
+The application will be available at http://localhost:5000
 
-The VS Code launch configuration is set up to:
-- Run the server in debug mode
-- Enable breakpoints
-- Show console output in the VS Code integrated terminal
+## Debugging Features
 
-To set a breakpoint:
-1. Click in the gutter (to the left of the line number) in any source file
-2. A red dot will appear, indicating a breakpoint
-3. When code execution reaches that line, it will pause
+### Setting Breakpoints
 
-## Troubleshooting
+1. Click in the gutter (left of line numbers) to set breakpoints
+2. When execution reaches that line, it will pause
+3. Inspect variables in the debug panel
+4. Use the debug console to evaluate expressions
 
-### Database Connection Issues
+### Database Debugging
 
-If you encounter database connection errors:
+For database-related issues:
 
-1. Verify your PostgreSQL service is running
-2. Check that your DATABASE_URL is correct in the .env file
-3. Ensure no firewall is blocking the PostgreSQL port
-4. Try connecting to the database using a different client to verify credentials
+1. Use "Test Database Connection" from the debugger menu
+2. Examine PostgreSQL logs (typically in /var/log/postgresql/)
+3. Use SQLTools extension to directly query the database
 
-### Node.js or npm Issues
+## File Structure Overview
 
-If you encounter Node.js or npm related errors:
-
-1. Verify Node.js version: `node -v` (should be v16+)
-2. Clear npm cache: `npm cache clean --force`
-3. Delete node_modules and reinstall: `rm -rf node_modules && npm install`
-
-### WebSocket Connection Issues with Neon Database
-
-If using Neon database and encountering WebSocket issues:
-
-1. Ensure @neondatabase/serverless package is installed
-2. Check that the WebSocket connection is properly configured in server/db.ts
-3. Make sure your firewall isn't blocking WebSocket connections
+```
+ctx-software/
+├── client/             # Frontend React application
+│   ├── src/
+│   │   ├── components/ # UI components
+│   │   ├── pages/      # Page components
+│   │   ├── hooks/      # Custom React hooks
+│   │   └── lib/        # Utility functions
+├── server/             # Backend Express application
+│   ├── routes.ts       # API route definitions
+│   ├── storage.ts      # Data access layer
+│   ├── db.ts           # Database connection
+│   └── auth.ts         # Authentication logic
+├── shared/             # Shared between client/server
+│   └── schema.ts       # Database schema definitions
+├── scripts/            # Utility scripts
+└── .vscode/            # VS Code configuration
+    ├── launch.json     # Debug configurations
+    └── settings.json   # Editor settings
+```
 
 ## Development Workflow
 
-1. Make changes to the code
-2. VS Code will auto-compile TypeScript files
-3. The development server will automatically restart when server files change
-4. The client will hot-reload when client files change
-5. Check the terminal for any error messages
+### Making Changes
 
-## Extending the Application
+1. **Backend Changes**:
+   - Update schema in `shared/schema.ts`
+   - Implement storage operations in `server/storage.ts`
+   - Add API routes in `server/routes.ts`
+   - The server restarts automatically when files change
 
-When extending the application:
+2. **Frontend Changes**:
+   - Create components in `client/src/components/`
+   - Add or update pages in `client/src/pages/`
+   - Route configuration is in `client/src/App.tsx`
+   - The client hot-reloads automatically
 
-1. Add new models to shared/schema.ts
-2. Implement storage operations in server/storage.ts
-3. Add API routes in server/routes.ts
-4. Create UI components in client/src/components
-5. Add new pages in client/src/pages
-6. Update the router in client/src/App.tsx
+### Testing Changes
+
+- Use the VS Code debugger to step through code
+- Check the terminal for server logs
+- Review browser console for client-side logs
+
+## Troubleshooting Guide
+
+### Database Connection Issues
+
+If you encounter "Failed to connect to database" errors:
+
+1. Verify PostgreSQL is running:
+   ```bash
+   # For Ubuntu/Debian
+   sudo systemctl status postgresql
+   # For macOS
+   brew services list
+   # For Windows
+   net start postgresql
+   ```
+
+2. Check credentials and permissions:
+   - Make sure the PostgreSQL user exists with proper permissions
+   - Verify the password in your .env file matches
+
+3. Test direct connection:
+   ```bash
+   psql -U postgres -h localhost -p 5432 -d ctx_software
+   ```
+
+### Startup Errors
+
+If the application fails to start:
+
+1. Check for port conflicts:
+   ```bash
+   # Find processes using port 5000
+   lsof -i :5000
+   ```
+
+2. Verify node_modules is complete:
+   ```bash
+   rm -rf node_modules
+   npm install
+   ```
+
+3. Check environment configuration:
+   - Ensure .env file exists and has correct format
+   - Verify NODE_ENV is set to "development"
+
+### Drizzle ORM Issues
+
+For database schema problems:
+
+1. Run schema regeneration:
+   ```bash
+   npm run db:push
+   ```
+
+2. Check migration logs in drizzle output
+3. Use SQLTools to verify table structures
+
+## Performance Optimization
+
+For local development performance:
+
+1. Keep database connections optimized
+   - Check connection pooling in server/db.ts
+   - Close connections that aren't needed
+
+2. Minimize watch targets
+   - Exclude node_modules in your file watcher config
+
+## Resources and Support
+
+- **Documentation**: See project documentation for detailed component information
+- **API Reference**: Generated from code comments
+- **Issue Tracking**: Submit bugs through the project issue tracker
+- **Team Contact**: Reach out to the development team for assistance
+
+## Contributing
+
+Before submitting changes:
+
+1. Run linting and type checking:
+   ```bash
+   npm run lint
+   npm run check-types
+   ```
+
+2. Follow the coding standards in .eslintrc and .prettierrc
+3. Add tests for new functionality
+4. Document API changes
