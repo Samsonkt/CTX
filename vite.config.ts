@@ -30,11 +30,14 @@ export default defineConfig({
     outDir: path.resolve(import.meta.dirname, "client/dist"),
     emptyOutDir: true,
     rollupOptions: {
+      external: ['react', 'react-dom', 'react-router-dom'],
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-        },
-      },
+        globals: {
+          'react': 'React',
+          'react-dom': 'ReactDOM',
+          'react-router-dom': 'ReactRouterDOM'
+        }
+      }
     },
   },
   server: {
