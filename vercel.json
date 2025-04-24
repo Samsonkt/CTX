@@ -2,46 +2,22 @@
   "version": 2,
   "builds": [
     {
-      "src": "dist/index.js",
+      "src": "dist/server.js",
       "use": "@vercel/node"
     },
     {
-      "src": "client/**",
+      "src": "dist/**",
       "use": "@vercel/static"
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "dist/index.js"
+      "dest": "dist/server.js"
     },
     {
       "src": "/(.*)",
-      "dest": "client/$1"
-    }
-  ],
-  "env": {
-    "NODE_ENV": "production",
-    "DATABASE_URL": "postgresql://neondb_owner:npg_DwWCumkRza45@ep-wandering-dream-a4pweakl-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require"
-  },
-  "regions": ["iad1"],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "Access-Control-Allow-Origin",
-          "value": "*"
-        },
-        {
-          "key": "Access-Control-Allow-Methods",
-          "value": "GET, POST, PUT, DELETE, OPTIONS"
-        },
-        {
-          "key": "Access-Control-Allow-Headers",
-          "value": "X-Requested-With, Content-Type, Authorization"
-        }
-      ]
+      "dest": "dist/$1"
     }
   ]
 }
