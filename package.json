@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "NODE_ENV=development tsx server/index.ts",
     "build:client": "vite build",
-    "build:server": "tsc && esbuild server/index.ts --bundle --platform=node --outfile=dist/server.js",
+    "build:server": "tsc -p tsconfig.build.json && esbuild server/index.ts --bundle --platform=node --outfile=dist/server.js",
     "build": "rm -rf dist && npm run build:client && npm run build:server",
     "vercel-build": "npm run build",
     "start": "NODE_ENV=production node dist/server.js",
