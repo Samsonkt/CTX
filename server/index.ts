@@ -21,7 +21,7 @@ registerRoutes(app);
 
 // Serve static files in production
 if (process.env.NODE_ENV === 'production') {
-  const distPath = path.join(__dirname, '../dist');
+  const distPath = path.join(__dirname, '../dist/client');
   console.log('Serving static files from:', distPath);
   app.use(express.static(distPath));
   app.use('*', (req, res) => {

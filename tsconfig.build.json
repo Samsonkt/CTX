@@ -3,8 +3,22 @@
   "compilerOptions": {
     "noEmit": true,
     "skipLibCheck": true,
-    "strictNullChecks": false
+    "strictNullChecks": false,
+    "noImplicitAny": false,
+    "strict": false,
+    "strictFunctionTypes": false,
+    "strictPropertyInitialization": false,
+    "noImplicitThis": false,
+    "alwaysStrict": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noImplicitReturns": false,
+    "noFallthroughCasesInSwitch": false,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   },
-  "include": ["server/**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": ["server/**/*.ts", "client/**/*.tsx"],
+  "exclude": ["node_modules", "dist"]
 } 

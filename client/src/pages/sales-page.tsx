@@ -38,6 +38,7 @@ import { Sale, SaleItem, Inventory, Warehouse, insertSaleSchema, insertSaleItemS
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
+import { Badge } from "@/components/ui/badge";
 
 // Schema for sales form with calculated fields
 const saleFormSchema = z.object({
@@ -267,12 +268,15 @@ export default function SalesPage() {
     {
       header: "Delivery",
       accessorKey: "deliveryStatus" as keyof Sale,
-      cell: (row: Sale) => row.deliveryRequired ? (
-        <StatusBadge 
-          status={row.deliveryStatus.charAt(0).toUpperCase() + row.deliveryStatus.slice(1)} 
-          variant={getStatusVariant(row.deliveryStatus)} 
-        />
-      ) : "N/A",
+      cell: (row: Sale) => {
+        const deliveryStatus = row.deliveryStatus || "pending";
+        const statusColor = deliveryStatus === "delivered" ? "green" : "red";
+        return (
+          <Badge variant={statusColor}>
+            {deliveryStatus}
+          </Badge>
+        );
+      },
     },
   ];
 
@@ -362,7 +366,11 @@ export default function SalesPage() {
                           <FormItem>
                             <FormLabel>Customer Contact</FormLabel>
                             <FormControl>
-                              <Input {...field} />
+                              <Input
+                                {...field}
+                                placeholder="Customer Contact"
+                                value={field.value || ""}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -376,7 +384,11 @@ export default function SalesPage() {
                           <FormItem>
                             <FormLabel>Customer Location</FormLabel>
                             <FormControl>
-                              <Input {...field} />
+                              <Input
+                                {...field}
+                                placeholder="Customer Location"
+                                value={field.value || ""}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>

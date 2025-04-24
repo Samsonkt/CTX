@@ -41,11 +41,12 @@ export async function testConnection() {
       connectionString: connectionString.replace(/:[^:]*@/, ':******@')
     };
   } catch (error) {
-    console.error('❌ Database connection error:', error);
+    const err = error as Error;
+    console.error('❌ Database connection error:', err);
     
     return {
       success: false,
-      error: error.message,
+      error: err.message,
       connectionString: connectionString.replace(/:[^:]*@/, ':******@')
     };
   }

@@ -6,7 +6,7 @@
       "use": "@vercel/node"
     },
     {
-      "src": "dist/**",
+      "src": "dist/client/**",
       "use": "@vercel/static"
     }
   ],
@@ -17,7 +17,11 @@
     },
     {
       "src": "/(.*)",
-      "dest": "dist/$1"
+      "dest": "dist/client/$1"
     }
-  ]
+  ],
+  "env": {
+    "NODE_ENV": "production",
+    "VERCEL": "1"
+  }
 }

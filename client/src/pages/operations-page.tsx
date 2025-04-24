@@ -52,6 +52,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { useAuth } from "@/hooks/use-auth";
+import { Badge } from "@/components/ui/badge";
 
 // Schema for project form
 const projectFormSchema = insertProjectSchema.extend({
@@ -476,7 +477,11 @@ export default function OperationsPage() {
                         <FormItem>
                           <FormLabel>Location</FormLabel>
                           <FormControl>
-                            <Input placeholder="Enter project location" {...field} />
+                            <Input
+                              {...field}
+                              placeholder="Location"
+                              value={field.value || ""}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -582,7 +587,11 @@ export default function OperationsPage() {
                         <FormItem>
                           <FormLabel>Description</FormLabel>
                           <FormControl>
-                            <Textarea placeholder="Enter task description" {...field} />
+                            <Textarea
+                              {...field}
+                              placeholder="Description"
+                              value={field.value || ""}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>

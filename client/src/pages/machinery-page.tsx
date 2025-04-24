@@ -236,7 +236,11 @@ export default function MachineryPage() {
                         <FormItem>
                           <FormLabel>Model</FormLabel>
                           <FormControl>
-                            <Input placeholder="e.g. XD-500" {...field} />
+                            <Input
+                              {...field}
+                              placeholder="Model"
+                              value={field.value || ""}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -250,7 +254,11 @@ export default function MachineryPage() {
                         <FormItem>
                           <FormLabel>Brand</FormLabel>
                           <FormControl>
-                            <Input placeholder="e.g. PowerDrill" {...field} />
+                            <Input
+                              {...field}
+                              placeholder="Brand"
+                              value={field.value || ""}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -264,7 +272,11 @@ export default function MachineryPage() {
                         <FormItem>
                           <FormLabel>Serial Number</FormLabel>
                           <FormControl>
-                            <Input placeholder="e.g. PD-12345" {...field} />
+                            <Input
+                              {...field}
+                              placeholder="Serial Number"
+                              value={field.value || ""}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -293,7 +305,11 @@ export default function MachineryPage() {
                       <FormItem>
                         <FormLabel>Additional Notes</FormLabel>
                         <FormControl>
-                          <Textarea placeholder="Enter any additional information" {...field} />
+                          <Textarea
+                            {...field}
+                            placeholder="Notes"
+                            value={field.value || ""}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>

@@ -215,31 +215,47 @@ export default function InventoryPage() {
   // DataTable columns for inventory
   const inventoryColumns = [
     {
-      header: "Product ID",
-      accessorKey: "productId" as keyof Inventory,
-    },
-    {
-      header: "Category",
-      accessorKey: "category" as keyof Inventory,
+      header: "ID",
+      accessorKey: "id" as keyof Inventory,
     },
     {
       header: "Item Name",
       accessorKey: "itemName" as keyof Inventory,
     },
     {
+      header: "Category",
+      accessorKey: "category" as keyof Inventory,
+    },
+    {
+      header: "Description",
+      accessorKey: "description" as keyof Inventory,
+      cell: (row: Inventory) => row.description || "-",
+    },
+    {
       header: "Quantity",
       accessorKey: "quantity" as keyof Inventory,
-      cell: (row: Inventory) => `${row.quantity} ${row.unit}`,
+    },
+    {
+      header: "Unit",
+      accessorKey: "unit" as keyof Inventory,
     },
     {
       header: "Unit Price",
       accessorKey: "unitPrice" as keyof Inventory,
-      cell: (row: Inventory) => `$${row.unitPrice.toFixed(2)}`,
     },
     {
-      header: "Value",
-      accessorKey: "value",
-      cell: (row: Inventory) => `$${(row.quantity * row.unitPrice).toFixed(2)}`,
+      header: "Product ID",
+      accessorKey: "productId" as keyof Inventory,
+    },
+    {
+      header: "Min Stock",
+      accessorKey: "minStock" as keyof Inventory,
+      cell: (row: Inventory) => row.minStock || "-",
+    },
+    {
+      header: "Max Stock",
+      accessorKey: "maxStock" as keyof Inventory,
+      cell: (row: Inventory) => row.maxStock || "-",
     },
     {
       header: "Warehouse",
@@ -356,7 +372,11 @@ export default function InventoryPage() {
                           <FormItem>
                             <FormLabel>Description</FormLabel>
                             <FormControl>
-                              <Input placeholder="Enter description" {...field} />
+                              <Input
+                                {...field}
+                                placeholder="Description"
+                                value={field.value || ""}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
