@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: ctx-app
+    env: node
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: SESSION_SECRET
+        sync: false
+      - key: DEBUG
+        value: ctx:*
+    healthCheckPath: /
+    autoDeploy: true 
